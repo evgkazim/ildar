@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TEST</title>
+	<meta chatset="utf-8">
+	<style>
+		div {
+			padding: 5px;
+		}
+	</style>
+</head>
+<body>
+    <script>
+		var init = true;
+		var id_sub_system = 0;
+		
+        function add_sub_system() {
+			if(document.getElementById("add_sub_system_name").value.length == 0){
+				alert("Enter a subsystem name!");
+				return;
+			}
+			if(init) {
+				var div = document.createElement("div");
+				div.innerHTML = '<div id=data></div><div id=output><div id=result></div><button onclick="calc()">Calc</button></div>';	
+				document.body.appendChild(div);
+				init = false;
+			}
+			document.getElementById("data").innerHTML += 
+			'<div name=d0>' +
+				'<label> Name sub_system: ' + document.getElementById("add_sub_system_name").value + ' </label>' +
+				'<button onclick="add_sub_sub_system(' + id_sub_system + ')">Add sub_sub_system</button>' + 
+				'<button onclick="del(this,true)">Delete</button>' +
+				'<div name="d1"></div>' +
+			'</div>';
+			id_sub_system++;
+        }
+		function add_sub_sub_system(id) {
+			document.getElementById("data").children[id].children.d1.innerHTML += 
+			'<div>' +
+			'<label> a </label><input id="a" type="text">' +
+			'<label> b </label><input id="b" type="text">' +
+			'<label> c </label><input id="c" type="text">' +
+			'<button onclick="del(this,false)">Delete</button>' +
+			'</div>';
+		}
+		function del(id, is_sub) {
+			if(is_sub) {
+				id_sub_system--;
+			}
+			id.parentNode.parentNode.removeChild(id.parentNode);
+		}
+		
+		function calc() {
+			var out = document.getElementById("result");
+			out.innerHTML = "";
+			var a0 = document.getElementById('data');
+			
+			for(var i = 0; i < a0.childElementCount; i++) {
+				var a1 = a0.children[i].children[3];
+				out.innerHTML += '<label> System id = ' + i + '</label><br>'
+				for(var l = 0; l < a1.childElementCount; l++) {
+					var a2 = a1.children[l];
+					out.innerHTML += '<label>' + 'a=' + a2.children[1].value + ', b=' + a2.children[3].value + ', c=' + a2.children[5].value + '</label><br>'
+				}
+				out.innerHTML += '<br>'
+			}
+		}
+    </script>
+	<div id="head">
+		<p>Test test test</p>
+		<label>Name subsystem</label>
+		<input id="add_sub_system_name" type="text">
+		<button onclick="add_sub_system()">Add sub_system</button>
+    </div>
+</body>
+</html>
