@@ -10,8 +10,18 @@
 	</style>
 </head>
 <body>
+	<div id="head">
+		<h2>Оптимизация ИСБ</h2>
+		<h4>Имя подсистемы</h4>
+		<input id="add_sub_system_name" type="text">
+		<button onclick="add_sub_system()">Добавить подсистему</button>
+    </div>
+	<div id=data></div>
+	<div id=output>
+		<div id=result></div>
+		<button onclick="calc()">Расчитать</button>
+	</div>
     <script>
-		var init = true;
 		var id_sub_system = 0;
 		
         function add_sub_system() {
@@ -19,15 +29,10 @@
 				alert("Enter a subsystem name!");
 				return;
 			}
-			if(init) {
-				var div = document.createElement("div");
-				div.innerHTML = '<div id=data></div><div id=output><div id=result></div><button onclick="calc()">Расчитать</button></div>';	
-				document.body.appendChild(div);
-				init = false;
-			}
 			document.getElementById("data").innerHTML += 
-			'<div name=d0>' +
-				'<label> Имя подсистемы: ' + document.getElementById("add_sub_system_name").value + ' </label>' +
+			'<div id=' + id_sub_system + ' name=d0>' +
+				'<label> Имя подсистемы: ' + document.getElementById("add_sub_system_name").value + '. Средства на оптимизацию </label>' +
+				'<input id=' + id_sub_system + ' name="i1" type="number">' +
 				'<button onclick="add_sub_sub_system(' + id_sub_system + ')">Добавить</button>' + 
 				'<button onclick="del(this,true)">Удалить</button>' +
 				'<div name="d1"></div>' +
@@ -50,35 +55,43 @@
 			id.parentNode.parentNode.removeChild(id.parentNode);
 		}
 		
-		function calc() {
-			var out = document.getElementById("result");
-			out.innerHTML = "";
-			
+		function calc() {		
 			var data = document.getElementById('data');
 			for (var i = 0; i < data.childElementCount; i++) {
-				var v = 1;
-				var o = {};/
-				var a = data.children[i].children[3];
-				out.innerHTML += '<label> Id подсистемы = ' + (i + 1) + '</label><br>'
-				for (var j = 0; j < a.childElementCount; j++) {
-					var b = a.children[j];
-					v *= Math.pow(b.children[1].value, b.children[3].value);
-					out.innerHTML += '<label>ВБР=' + b.children[1].value + ', количество=' + b.children[3].value + ', стоимость=' + b.children[5].value + '</label><br>'
+				var obj = {
+					a:1, 
+					b:0,
+					c:0,
+					d:[],
+					p:0,
+					w:0
+				};
+				
+				var data_sub = data.children[i].children[4];
+				for (var j = 0; j < data_sub.childElementCount; j++) {
+					var sub = data_sub.children[j];
+					obj.a *= Math.pow(sub.children[1].value, sub.children[3].value);
+					obj.b += (sub.children[3].value * sub.children[5].value);
+					obj.d.push({
+						id:j,
+						v1:parseFloat(sub.children[1].value),
+						v2:parseInt(sub.children[3].value),
+						v3:parseInt(sub.children[5].value),
+						w1:(1 - Math.pow((1 - sub.children[1].value), 2)),
+						w2:(1 - Math.pow((1 - sub.children[1].value), 2)) / sub.children[5].value
+					});			
 				}
-				out.innerHTML += '<label>ВБР подсистемы = ' + v + '</label><br>'
+				obj.c += parseInt(document.getElementById('data').children[i].children[1].value);
+				obj.d.sort(function(a, b) {return b.w2 - a.w2;});
+				console.log(obj);
+				/*
+				var s = obj.b + obj.c;
+				while(s > obj.b) {
+					
+				}
+				*/
 			}
-			
-			out.innerHTML += '<label>Общее ВБР=</label><br>'
-			out.innerHTML += '<label>Что-то там=</label><br>'
-		}
+		}		
     </script>
-		<div id="head">
-		<h2>Оптимизация ИСБ</h2>
-		<h4>Имя подсистемы</h4>
-		<input id="add_sub_system_name" type="text">
-		<button onclick="add_sub_system()">Добавить подсистему</button>
-		<h4>Выделенные деньги для оптимизации</h4>
-		<input id="money" type="number">
-    </div>
 </body>
 </html>	
