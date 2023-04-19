@@ -1,96 +1,120 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>TEST</title>
+	<title>Оптимизация ИСБ</title>
 	<meta chatset="utf-8">
-	<style>
-		div {
-			padding: 5px;
-		}
-	</style>
+	<style> div {padding: 5px;}	</style>
 </head>
 <body>
 	<div id="head">
 		<h2>Оптимизация ИСБ</h2>
 		<h4>Имя подсистемы</h4>
-		<input id="add_sub_system_name" type="text">
-		<button onclick="add_sub_system()">Добавить подсистему</button>
+		<input id="system_name" type="text">
+		<button onclick="add()">Добавить подсистему</button>
     </div>
 	<div id=data></div>
 	<div id=output>
 		<div id=result></div>
 		<button onclick="calc()">Расчитать</button>
 	</div>
-    <script>
-		var id_sub_system = 0;
-		
-        function add_sub_system() {
-			if(document.getElementById("add_sub_system_name").value.length == 0){
-				alert("Enter a subsystem name!");
-				return;
-			}
-			document.getElementById("data").innerHTML += 
-			'<div id=' + id_sub_system + ' name=d0>' +
-				'<label> Имя подсистемы: ' + document.getElementById("add_sub_system_name").value + '. Средства на оптимизацию </label>' +
-				'<input id=' + id_sub_system + ' name="i1" type="number">' +
-				'<button onclick="add_sub_sub_system(' + id_sub_system + ')">Добавить</button>' + 
-				'<button onclick="del(this,true)">Удалить</button>' +
-				'<div name="d1"></div>' +
-			'</div>';
-			id_sub_system++;
+    <script>		
+        function add() {
+			document.getElementById("data").innerHTML += '<div><label> Имя подсистемы: ' + document.getElementById("system_name").value + '. Средства на оптимизацию </label><input type="number"><button onclick="add_sub(this)">Добавить</button><button onclick="del(this)">Удалить</button><div></div></div>';
         }
-		function add_sub_sub_system(id) {
-			document.getElementById("data").children[id].children.d1.innerHTML += 
-			'<div>' +
-				'<label> ВБР </label><input id="a" type="text">' +
-				'<label> количество </label><input id="b" type="text">' +
-				'<label> стоимость </label><input id="c" type="text">' +
-				'<button onclick="del(this,false)">Удалить</button>' +
-			'</div>';
-		}
-		function del(id, is_sub) {
-			if(is_sub) {
-				id_sub_system--;
-			}
-			id.parentNode.parentNode.removeChild(id.parentNode);
+		
+		function del(obj) {
+			obj.parentNode.parentNode.removeChild(obj.parentNode);
 		}
 		
-		function calc() {		
+		function add_sub(obj) {
+			obj.parentNode.children[4].innerHTML += '<div><label> ВБР </label><input type="number"><label> количество </label><input type="number"><label> стоимость </label><input type="number"><button onclick="del(this)">Удалить</button></div>';
+		}
+		
+		function plus(obj) {
+			var out = 0;
+			for(var i = 0; i < obj.length; i++) {
+				for(var j = 0; j < obj[i].c.length; j++) {
+					out += obj[i].c[j];
+				}
+			}
+			return out;
+		}
+		
+		function mult(obj) {
+			var out = 1;
+			for(var i = 0; i < obj.length; i++) {
+				for(var j = 0; j < obj[i].v.length; j++) {
+					out *= obj[i].v[j];
+				}
+			}
+			return out;
+		}
+		
+		function calc() {				
 			var data = document.getElementById('data');
+			document.getElementById("result").innerHTML = '<label> Расчет </label><br>';
+			
 			for (var i = 0; i < data.childElementCount; i++) {
+				var data_sub = data.children[i].children[4];
 				var obj = {
-					a:1, 
-					b:0,
+					id:i,
 					c:0,
-					d:[],
-					p:0,
-					w:0
+					data:[]
 				};
 				
-				var data_sub = data.children[i].children[4];
+				document.getElementById("result").innerHTML += '<label> Номер подсистемы - ' + i + '</label><br>';
+				
 				for (var j = 0; j < data_sub.childElementCount; j++) {
 					var sub = data_sub.children[j];
-					obj.a *= Math.pow(sub.children[1].value, sub.children[3].value);
-					obj.b += (sub.children[3].value * sub.children[5].value);
-					obj.d.push({
+					var v = parseFloat(sub.children[1].value);
+					var q = parseInt(sub.children[3].value);
+					var c = parseInt(sub.children[5].value);
+					var obj_sub = {
 						id:j,
-						v1:parseFloat(sub.children[1].value),
-						v2:parseInt(sub.children[3].value),
-						v3:parseInt(sub.children[5].value),
-						w1:(1 - Math.pow((1 - sub.children[1].value), 2)),
-						w2:(1 - Math.pow((1 - sub.children[1].value), 2)) / sub.children[5].value
-					});			
-				}
-				obj.c += parseInt(document.getElementById('data').children[i].children[1].value);
-				obj.d.sort(function(a, b) {return b.w2 - a.w2;});
-				console.log(obj);
-				/*
-				var s = obj.b + obj.c;
-				while(s > obj.b) {
+						v:[],
+						c:[],
+						q:null,
+						w:null,
+						z:null
+					};
+					for (var k = 0; k < q; k++) {
+						obj_sub.v.push(v);
+						obj_sub.c.push(c);
+					}
+					obj_sub.q = q;
+					obj_sub.w = Math.round((1 - Math.pow((1 - sub.children[1].value), 2)) * 1000) / 1000.0;
+					obj_sub.z = Math.round((obj_sub.w / c) * 1000) / 1000.0;
+					obj.data.push(obj_sub);
+					
+					document.getElementById("result").innerHTML += '<label> v=' + v + ', q=' + q + ', c=' + c + ' </label><br>';
 					
 				}
-				*/
+				obj.c = parseInt(document.getElementById('data').children[i].children[1].value) + plus(obj.data);
+				obj.data.sort(function(a, b) {return b.z - a.z;});
+							
+				var s = obj.c;
+				
+				document.getElementById("result").innerHTML += '<label> Анализ и сортировка по приоритету </label><br><label> Текущая стоимость = ' + plus(obj.data) + ' </label><br>';
+
+				for (var j = 0; j < obj.data.length; j++) {
+					
+					document.getElementById("result").innerHTML += '<label> id = ' + obj.data[j].id + ' </label><br>';
+				
+					for (var k = 0; k < obj.data[j].v.length; k++) {	
+						if(s >= (plus(obj.data) + obj.data[j].c[0])) {
+							obj.data[j].v[k] = obj.data[j].w;
+							obj.data[j].c.push(obj.data[j].c[0]);
+							
+							document.getElementById("result").innerHTML += '<label> Добавление элемента, новый массив ВБР = [' + obj.data[j].v.join(' ') + '] </label><br>';
+							document.getElementById("result").innerHTML += '<label> Максимальная стоимость = ' + s + ', текущая стоимость = ' + plus(obj.data) + ' </label><br>';
+						}
+					}
+				}		
+				obj.data.sort(function(a, b) {return a.id - b.id;});
+				console.log(obj);
 			}
+			
+			
 		}		
     </script>
 </body>
