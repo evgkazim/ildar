@@ -87,8 +87,8 @@
             obj_sub.c.push(c);
           }
           obj_sub.q = q;
-          obj_sub.w = Math.round((1 - Math.pow((1 - sub.children[1].value), 2)) * 1000) / 1000.0;
-          obj_sub.z = Math.round((obj_sub.w / c) * 1000) / 1000.0;
+          obj_sub.w = (1 - Math.pow((1 - sub.children[1].value), 2));
+          obj_sub.z = (obj_sub.w / c);
           obj.data.push(obj_sub);
           document.getElementById("result").innerHTML += '<label> id = ' + j + ', v = ' + v + ', q = ' + q + ', c = ' + c + ', w = ' + obj_sub.w + ', z = ' + obj_sub.z + ' </label><br>';
         }
@@ -100,14 +100,17 @@
         var s = obj.c;
         document.getElementById("result").innerHTML += '<p> ВБР = ' + obj.a + ', текущая стоимость = ' + plus(obj.data) + ', максимальная стоимость = ' + s + ' </p>';
         for (var j = 0; j < obj.data.length; j++) {
+		  var col = 0;
           document.getElementById("result").innerHTML += '<p> id = ' + obj.data[j].id + ' </p>';
           for (var k = 0; k < obj.data[j].v.length; k++) {
             if (s >= (plus(obj.data) + obj.data[j].c[0])) {
               obj.data[j].v[k] = obj.data[j].w;
               obj.data[j].c.push(obj.data[j].c[0]);
-              document.getElementById("result").innerHTML += '<label> Добавление одного элемента, ВБР = ' + Math.round(mult(obj.data) * 100) / 100.0 + ', новый массив ВБР = [' + obj.data[j].v.join(' ') + '], текущая стоимость = ' + plus(obj.data) + '</label><br>';
+			  col++;
+              //document.getElementById("result").innerHTML += '<label> Добавление одного элемента, ВБР = ' + Math.round(mult(obj.data) * 100) / 100.0 + ', новый массив ВБР = [' + obj.data[j].v.join(' ') + '], текущая стоимость = ' + plus(obj.data) + '</label><br>';
             }
           }
+		  document.getElementById("result").innerHTML += '<label> Зарезервированно ' + col + '/' + obj.data[j].v.length + ' </label><br>';
         }
         document.getElementById("result").innerHTML += '<p> ВБР подсистемы = ' + mult(obj.data) + ' </p><br><br>';
         VBR *= mult(obj.data)
