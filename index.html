@@ -110,7 +110,7 @@
               //document.getElementById("result").innerHTML += '<label> Добавление одного элемента, ВБР = ' + Math.round(mult(obj.data) * 100) / 100.0 + ', новый массив ВБР = [' + obj.data[j].v.join(' ') + '], текущая стоимость = ' + plus(obj.data) + '</label><br>';
             }
           }
-		  document.getElementById("result").innerHTML += '<label> Зарезервированно ' + col + '/' + obj.data[j].v.length + ' </label><br>';
+		  document.getElementById("result").innerHTML += '<label> Зарезервированно ' + col + '/' + obj.data[j].v.length + ', текущая стоимость = ' + plus(obj.data) + ' </label><br>';
         }
         document.getElementById("result").innerHTML += '<p> ВБР подсистемы = ' + mult(obj.data) + ' </p><br><br>';
         VBR *= mult(obj.data)
