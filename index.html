@@ -1,112 +1,120 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-	<title>Оптимизация ИСБ</title>
-	<meta chatset="utf-8">
-	<style> div {padding: 5px;}	</style>
+  <title>Оптимизация ИСБ</title>
+  <meta chatset="utf-8">
+  <style>
+    div {
+      padding: 5px;
+    }
+  </style>
 </head>
+
 <body>
-	<div id="head">
-		<h2>Оптимизация ИСБ</h2>
-		<h4>Имя подсистемы</h4>
-		<input id="system_name" type="text">
-		<button onclick="add()">Добавить подсистему</button>
-    </div>
-	<div id=data></div>
-	<div id=output>
-		<div id=result></div>
-		<button onclick="calc()">Расчитать</button>
-	</div>
-    <script>		
-        function add() {
-			document.getElementById("data").innerHTML += '<div><label> Имя подсистемы: ' + document.getElementById("system_name").value + '. Средства на оптимизацию </label><input type="number"><button onclick="add_sub(this)">Добавить</button><button onclick="del(this)">Удалить</button><div></div></div>';
+  <div id="head">
+    <h2>Оптимизация ИСБ</h2>
+    <h4>Имя подсистемы</h4>
+    <input id="system_name" type="text">
+    <button onclick="add()">Добавить подсистему</button>
+  </div>
+  <div id=data></div>
+  <div id=output>
+    <div id=result></div>
+    <button onclick="calc()">Расчитать</button>
+  </div>
+  <script>
+    function add() {
+      document.getElementById("data").innerHTML += '<div><label> Имя подсистемы: ' + document.getElementById("system_name").value + '. Средства на оптимизацию </label><input type="number"><button onclick="add_sub(this)">Добавить</button><button onclick="del(this)">Удалить</button><div></div></div>';
+    }
+
+    function del(obj) {
+      obj.parentNode.parentNode.removeChild(obj.parentNode);
+    }
+
+    function add_sub(obj) {
+      obj.parentNode.children[4].innerHTML += '<div><label> ВБР </label><input type="number"><label> количество </label><input type="number"><label> стоимость </label><input type="number"><button onclick="del(this)">Удалить</button></div>';
+    }
+
+    function plus(obj) {
+      var out = 0;
+      for (var i = 0; i < obj.length; i++) {
+        for (var j = 0; j < obj[i].c.length; j++) {
+          out += obj[i].c[j];
         }
-		
-		function del(obj) {
-			obj.parentNode.parentNode.removeChild(obj.parentNode);
-		}
-		
-		function add_sub(obj) {
-			obj.parentNode.children[4].innerHTML += '<div><label> ВБР </label><input type="number"><label> количество </label><input type="number"><label> стоимость </label><input type="number"><button onclick="del(this)">Удалить</button></div>';
-		}
-		
-		function plus(obj) {
-			var out = 0;
-			for(var i = 0; i < obj.length; i++) {
-				for(var j = 0; j < obj[i].c.length; j++) {
-					out += obj[i].c[j];
-				}
-			}
-			return out;
-		}
-		
-		function mult(obj) {
-			var out = 1;
-			for(var i = 0; i < obj.length; i++) {
-				for(var j = 0; j < obj[i].v.length; j++) {
-					out *= obj[i].v[j];
-				}
-			}
-			return out;
-		}
-		
-		function calc() {				
-			var data = document.getElementById('data');
-			var VBR = 1;
-			document.getElementById("result").innerHTML = '<h4> Расчет </h4>';
-			for (var i = 0; i < data.childElementCount; i++) {
-				var data_sub = data.children[i].children[4];
-				var obj = {
-					id:i,
-					a:0,
-					c:0,
-					data:[]
-				};
-				document.getElementById("result").innerHTML += '<h4> ID подсистемы = ' + i + '</h4>';
-				for (var j = 0; j < data_sub.childElementCount; j++) {
-					var sub = data_sub.children[j];
-					var v = parseFloat(sub.children[1].value);
-					var q = parseInt(sub.children[3].value);
-					var c = parseInt(sub.children[5].value);
-					var obj_sub = {
-						id:j,
-						v:[],
-						c:[],
-						q:null,
-						w:null,
-						z:null
-					};
-					for (var k = 0; k < q; k++) {
-						obj_sub.v.push(v);
-						obj_sub.c.push(c);
-					}
-					obj_sub.q = q;
-					obj_sub.w = Math.round((1 - Math.pow((1 - sub.children[1].value), 2)) * 1000) / 1000.0;
-					obj_sub.z = Math.round((obj_sub.w / c) * 1000) / 1000.0;
-					obj.data.push(obj_sub);
-					document.getElementById("result").innerHTML += '<label> id = ' + j + ', v = ' + v + ', q = ' + q + ', c = ' + c + ', w = ' + obj_sub.w + ', z = ' + obj_sub.z + ' </label><br>';
-				}
-				obj.a = mult(obj.data);
-				obj.c = parseInt(document.getElementById('data').children[i].children[1].value) + plus(obj.data);
-				obj.data.sort(function(a, b) {return b.z - a.z;});
-				var s = obj.c;
-				document.getElementById("result").innerHTML += '<p> ВБР = ' + obj.a + ', текущая стоимость = ' + plus(obj.data) + ', максимальная стоимость = ' + s + ' </p>';
-				for (var j = 0; j < obj.data.length; j++) {
-					document.getElementById("result").innerHTML += '<p> id = ' + obj.data[j].id + ' </p>';
-					for (var k = 0; k < obj.data[j].v.length; k++) {	
-						if(s >= (plus(obj.data) + obj.data[j].c[0])) {
-							obj.data[j].v[k] = obj.data[j].w;
-							obj.data[j].c.push(obj.data[j].c[0]);
-							
-							document.getElementById("result").innerHTML += '<label> Добавление одного элемента, ВБР = ' + Math.round(mult(obj.data)*100)/100.0 + ', новый массив ВБР = [' + obj.data[j].v.join(' ') + '], текущая стоимость = ' + plus(obj.data) + '</label><br>';
-						}
-					}
-				}		
-				document.getElementById("result").innerHTML += '<p> ВБР подсистемы = ' + mult(obj.data) + ' </p><br><br>';
-				VBR *= mult(obj.data)
-			}			
-			document.getElementById("result").innerHTML += '<h3> ВБР общая = ' + VBR + ' </h3>';
-		}		
-    </script>
+      }
+      return out;
+    }
+
+    function mult(obj) {
+      var out = 1;
+      for (var i = 0; i < obj.length; i++) {
+        for (var j = 0; j < obj[i].v.length; j++) {
+          out *= obj[i].v[j];
+        }
+      }
+      return out;
+    }
+
+    function calc() {
+      var data = document.getElementById('data');
+      var VBR = 1;
+      document.getElementById("result").innerHTML = '<h4> Расчет </h4>';
+      for (var i = 0; i < data.childElementCount; i++) {
+        var data_sub = data.children[i].children[4];
+        var obj = {
+          id: i,
+          a: 0,
+          c: 0,
+          data: []
+        };
+        document.getElementById("result").innerHTML += '<h4> ID подсистемы = ' + i + '</h4>';
+        for (var j = 0; j < data_sub.childElementCount; j++) {
+          var sub = data_sub.children[j];
+          var v = parseFloat(sub.children[1].value);
+          var q = parseInt(sub.children[3].value);
+          var c = parseInt(sub.children[5].value);
+          var obj_sub = {
+            id: j,
+            v: [],
+            c: [],
+            q: null,
+            w: null,
+            z: null
+          };
+          for (var k = 0; k < q; k++) {
+            obj_sub.v.push(v);
+            obj_sub.c.push(c);
+          }
+          obj_sub.q = q;
+          obj_sub.w = Math.round((1 - Math.pow((1 - sub.children[1].value), 2)) * 1000) / 1000.0;
+          obj_sub.z = Math.round((obj_sub.w / c) * 1000) / 1000.0;
+          obj.data.push(obj_sub);
+          document.getElementById("result").innerHTML += '<label> id = ' + j + ', v = ' + v + ', q = ' + q + ', c = ' + c + ', w = ' + obj_sub.w + ', z = ' + obj_sub.z + ' </label><br>';
+        }
+        obj.a = mult(obj.data);
+        obj.c = parseInt(document.getElementById('data').children[i].children[1].value) + plus(obj.data);
+        obj.data.sort(function(a, b) {
+          return b.z - a.z;
+        });
+        var s = obj.c;
+        document.getElementById("result").innerHTML += '<p> ВБР = ' + obj.a + ', текущая стоимость = ' + plus(obj.data) + ', максимальная стоимость = ' + s + ' </p>';
+        for (var j = 0; j < obj.data.length; j++) {
+          document.getElementById("result").innerHTML += '<p> id = ' + obj.data[j].id + ' </p>';
+          for (var k = 0; k < obj.data[j].v.length; k++) {
+            if (s >= (plus(obj.data) + obj.data[j].c[0])) {
+              obj.data[j].v[k] = obj.data[j].w;
+              obj.data[j].c.push(obj.data[j].c[0]);
+              document.getElementById("result").innerHTML += '<label> Добавление одного элемента, ВБР = ' + Math.round(mult(obj.data) * 100) / 100.0 + ', новый массив ВБР = [' + obj.data[j].v.join(' ') + '], текущая стоимость = ' + plus(obj.data) + '</label><br>';
+            }
+          }
+        }
+        document.getElementById("result").innerHTML += '<p> ВБР подсистемы = ' + mult(obj.data) + ' </p><br><br>';
+        VBR *= mult(obj.data)
+      }
+      document.getElementById("result").innerHTML += '<h3> ВБР общая = ' + VBR + ' </h3>';
+    }
+  </script>
 </body>
-</html>	
+
+</html>
